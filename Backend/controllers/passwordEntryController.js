@@ -1,5 +1,7 @@
 const PasswordEntry = require('../models/PasswordEntry');
 const { encrypt, decrypt } = require('./encryption');
+const crypto = require('crypto');
+
 
 exports.createPasswordEntry = async (req, res) => {
     const { url, password, length, alphabet, numerals, symbols } = req.body;
@@ -162,6 +164,10 @@ exports.revokeAllAccess = async (req, res) => {
 };
 
 
+function generateSecureRandom(length) {
+    return crypto.randomInt(0, length);
+}
+
 function generatePassword(length, options) {
     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     const numerals = '0123456789';
@@ -175,20 +181,19 @@ function generatePassword(length, options) {
     if (options.symbols) characters += symbols;
 
     // Ensure each selected type is represented at least once
-    if (options.alphabet) password += alphabet[Math.floor(Math.random() * alphabet.length)];
-    if (options.numerals) password += numerals[Math.floor(Math.random() * numerals.length)];
-    if (options.symbols) password += symbols[Math.floor(Math.random() * symbols.length)];
+    if (options.alphabet) password += alphabet[generateSecureRandom(alphabet.length)];
+    if (options.numerals) password += numerals[generateSecureRandom(numerals.length)];
+    if (options.symbols) password += symbols[generateSecureRandom(symbols.length)];
 
     // Fill the rest of the password length with random characters from the combined string
     for (let i = password.length; i < length; i++) {
-        password += characters.charAt(Math.floor(Math.random() * characters.length));
+        password += characters[generateSecureRandom(characters.length)];
     }
 
     // Shuffle the password to mix the initial characters
-    password = password.split('').sort(() => 0.5 - Math.random()).join('');
+    password = password.split('').sort(() => generateSecureRandom(2) - 1).join('');
 
     return password;
 }
-
 
 
