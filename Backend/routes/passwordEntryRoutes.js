@@ -4,6 +4,7 @@ const passwordEntriesController = require('../controllers/passwordEntryControlle
 const { isLoggedIn, isEntryOwner } = require('../middleware/authMiddleware');
 const catchAsync = require('../utils/catchAsync');
 
+
 router.post('/', isLoggedIn, catchAsync(passwordEntriesController.createPasswordEntry));
 
 router.get('/', isLoggedIn, catchAsync(passwordEntriesController.getPasswordEntries));

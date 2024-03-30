@@ -1,19 +1,65 @@
 const PasswordEntry = require('../models/PasswordEntry');
+const { encrypt, decrypt } = require('./encryption');
 
 exports.createPasswordEntry = async (req, res) => {
-    const { website, username, password } = req.body;
-    const entry = new PasswordEntry({ website, username, password, user: req.user._id });
-    await entry.save();
-    res.status(201).json(entry);
+    const { url, password, length, alphabet, numerals, symbols } = req.body;
+
+    // Validate input: URL is required
+    if (!url) {
+        return res.status(400).json({ message: "URL is required." });
+    }
+
+    // Handle password generation or use the provided one
+    let finalPassword = password;
+    if (!finalPassword) {
+        // criteria check
+        if (!(alphabet || numerals || symbols) || length < 4 || length > 50) {
+            return res.status(400).json({ message: "Invalid password generation criteria." });
+        }
+        finalPassword = generatePassword(length, { alphabet, numerals, symbols });
+    }
+
+    const encryptedPassword = encrypt(finalPassword);
+
+    // Create the new password entry
+    try {
+        const newEntry = new PasswordEntry({
+            url,
+            password: encryptedPassword, // Save the encrypted password
+            user: req.user._id
+        });
+
+        await newEntry.save();
+
+        // Respond with the saved entry, excluding the encrypted password for security
+        const responseEntry = {
+            ...newEntry.toObject(),
+            password: undefined 
+        };
+
+        res.status(201).json(responseEntry);
+    } catch (error) {
+        console.error(`Failed to create password entry: ${error}`);
+        res.status(500).json({ message: "Failed to create password entry." });
+    }
 };
+
 
 exports.getPasswordEntries = async (req, res) => {
     const entries = await PasswordEntry.find({ user: req.user._id });
-    res.json(entries);
+
+    const decryptedEntries = entries.map(entry => {
+        return {
+            ...entry.toObject(),
+            password: decrypt(entry.password)
+        };
+    });
+
+    res.json(decryptedEntries);
 };
 
 exports.sharePasswordEntry = async (req, res) => {
-    const { id } = req.params; // ID of the password entry owner to share
+    const { id } = req.params; 
     const { userIdToShareWith } = req.body; 
 
     const passwordEntry = await PasswordEntry.findById(id);
@@ -62,8 +108,19 @@ exports.shareAllPasswordEntries = async (req, res) => {
 exports.updatePasswordEntry = async (req, res) => {
     const { id } = req.params;
     const { website, username, password } = req.body;
-    const entry = await PasswordEntry.findByIdAndUpdate(id, { website, username, password }, { new: true });
-    res.json(entry);
+
+    const encryptedPassword = encrypt(password); 
+
+    const entry = await PasswordEntry.findByIdAndUpdate(id, { website, username, password: encryptedPassword }, { new: true });
+    
+    if (!entry) {
+        return res.status(404).json({ message: "Password entry not found." });
+    }
+
+    res.json({
+        ...entry.toObject(),
+        password: undefined
+    });
 };
 
 exports.deletePasswordEntry = async (req, res) => {
@@ -103,5 +160,35 @@ exports.revokeAllAccess = async (req, res) => {
 
     res.json({ message: `Access revoked for all shared entries from user ${userIdToRevoke}.` });
 };
+
+
+function generatePassword(length, options) {
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    const numerals = '0123456789';
+    const symbols = '!@#$%^&*()_+-=[]{}|;:\'",.<>/?';
+
+    let characters = '';
+    let password = '';
+
+    if (options.alphabet) characters += alphabet;
+    if (options.numerals) characters += numerals;
+    if (options.symbols) characters += symbols;
+
+    // Ensure each selected type is represented at least once
+    if (options.alphabet) password += alphabet[Math.floor(Math.random() * alphabet.length)];
+    if (options.numerals) password += numerals[Math.floor(Math.random() * numerals.length)];
+    if (options.symbols) password += symbols[Math.floor(Math.random() * symbols.length)];
+
+    // Fill the rest of the password length with random characters from the combined string
+    for (let i = password.length; i < length; i++) {
+        password += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+
+    // Shuffle the password to mix the initial characters
+    password = password.split('').sort(() => 0.5 - Math.random()).join('');
+
+    return password;
+}
+
 
 
