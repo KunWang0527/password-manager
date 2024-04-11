@@ -14,15 +14,9 @@ function encrypt(text) {
 }
 
 function decrypt(text) {
-    console.log("Decrypting text:", text);
     let textParts = text.split(':');
-    console.log("Text parts:", textParts);
-
     let iv = Buffer.from(textParts.shift(), 'hex');
-    console.log("IV:", iv);
-
     let encryptedText = Buffer.from(textParts.join(':'), 'hex');
-    console.log("Encrypted Text:", encryptedText);
 
     let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
     let decrypted = decipher.update(encryptedText);
