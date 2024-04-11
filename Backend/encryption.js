@@ -1,12 +1,11 @@
 const crypto = require('crypto');
 
-const algorithm = 'aes-256-cbc'; 
-const secretKey = process.env.ENCRYPTION_KEY; 
-const ivLength = 16; 
+const originalKey = process.env.ENCRYPTION_KEY;
+const key = crypto.createHash('sha256').update(String(originalKey)).digest('base64').substr(0, 32);
 
 function encrypt(text) {
-    let iv = crypto.randomBytes(ivLength);
-    let cipher = crypto.createCipheriv(algorithm, Buffer.from(secretKey), iv);
+    let iv = crypto.randomBytes(16);
+    let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
     let encrypted = cipher.update(text);
 
     encrypted = Buffer.concat([encrypted, cipher.final()]);
@@ -15,10 +14,17 @@ function encrypt(text) {
 }
 
 function decrypt(text) {
+    console.log("Decrypting text:", text);
     let textParts = text.split(':');
+    console.log("Text parts:", textParts);
+
     let iv = Buffer.from(textParts.shift(), 'hex');
+    console.log("IV:", iv);
+
     let encryptedText = Buffer.from(textParts.join(':'), 'hex');
-    let decipher = crypto.createDecipheriv(algorithm, Buffer.from(secretKey), iv);
+    console.log("Encrypted Text:", encryptedText);
+
+    let decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
     let decrypted = decipher.update(encryptedText);
 
     decrypted = Buffer.concat([decrypted, decipher.final()]);

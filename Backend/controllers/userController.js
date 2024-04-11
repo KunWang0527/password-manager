@@ -1,41 +1,78 @@
 const User = require('../models/User');
+const passport = require('passport');
+const jwt = require('jsonwebtoken');
 
-exports.renderRegister = (req, res) => {
-    res.render('users/register'); 
-};
 
-exports.register = async (req, res, next) => {
+
+exports.register = async (req, res) => {
     try {
         const { email, username, password } = req.body;
+
+        const existingEmail = await User.findOne({ email });
+        if (existingEmail) {
+            return res.status(400).json({ message: 'An account with this email already exists.' });
+        }
+
         const newUser = new User({ email, username });
-        const registeredUser = await User.register(newUser, password);
-        
-        // Log the user in after successful registration
-        req.login(registeredUser, err => {
-            if (err) return next(err);
-            req.flash('success', 'Welcome to the Password Manager!');
-            res.redirect('/dashboard'); 
+
+        User.register(newUser, password, async (err, user) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ message: 'Error registering new user.', error: err.message });
+            }
+
+            const token = jwt.sign(
+                { userId: user._id, username: user.username },
+                process.env.JWT_SECRET,
+                { expiresIn: '1h' } 
+            );
+
+            res.status(201).json({
+                message: 'Registration successful',
+                user: { id: user._id, username: user.username, email: user.email },
+                token
+            });
         });
-    } catch (e) {
-        req.flash('error', e.message); 
-        res.redirect('register');
+    } catch (error) {
+        console.error('Registration error:', error);
+        res.status(400).json({ message: 'Failed to register user.', error: error.message });
     }
 };
 
-exports.renderLogin = (req, res) => {
-    res.render('users/login');
-}
+exports.login = (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (err) { 
+            return next(err); 
+        }
+        if (!user) { 
+            return res.status(400).json({ message: 'Username or password is incorrect' }); 
+        }
 
-module.exports.login = (req, res) => {
-    req.flash('success', 'welcome back!');
-    const redirectUrl = req.session.returnTo || '/dashboard';
-    delete req.session.returnTo;
-    res.redirect(redirectUrl);
-}
+        const token = jwt.sign(
+            { userId: user._id, username: user.username }, 
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' } 
+        );
 
-exports.renderDashboard = (req, res) => {
-    res.render('users/dashboard');
-}
+        res.json({
+            message: 'Login successful',
+            user: { 
+                username: user.username, 
+                email: user.email 
+            },
+            token 
+        });
+    })(req, res, next);
+};
+
+exports.renderDashboard = async (req, res) => {
+    try {
+        const userData = {/* Fetch user data */};
+        res.json(userData);
+    } catch (error) {
+        res.status(500).json({ error: 'Error fetching dashboard data.' });
+    }
+};
 
 exports.getProfile = async (req, res) => {
     try {
@@ -66,8 +103,7 @@ exports.deleteProfile = async (req, res) => {
 };
 
 
-module.exports.logout = (req, res) => {
+exports.logout = (req, res) => {
     req.logout();
-    req.flash('success', "Goodbye!");
-    res.redirect('/home');
-}
+    res.json({ message: "You've been logged out successfully." });
+};

@@ -21,6 +21,9 @@ const extension = (joi) => ({
     }
 });
 
+// Extend BaseJoi with the extension
+const Joi = BaseJoi.extend(extension);
+
 const userSchema = Joi.object({
     username: Joi.string().alphanum().min(3).max(30).required().escapeHTML(),
     email: Joi.string().email({ tlds: { allow: false } }).required().escapeHTML(),
@@ -33,4 +36,4 @@ const passwordEntrySchema = Joi.object({
     password: Joi.string().required() 
 });
 
-const Joi = BaseJoi.extend(extension)
+module.exports = { userSchema, passwordEntrySchema };

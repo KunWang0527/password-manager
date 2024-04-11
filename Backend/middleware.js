@@ -1,16 +1,9 @@
-const { userSchema, passwordEntrySchema } = require('./schemas.js');
-const PasswordEntry = require('../models/PasswordEntry'); 
-const User = require('../models/User'); 
+const { userSchema, passwordEntrySchema } = require('./schemas');
+const PasswordEntry = require('./models/PasswordEntry'); 
+const User = require('./models/User'); 
+const jwt = require('jsonwebtoken');
 
 
-module.exports.isLoggedIn = (req, res, next) => {
-    if (!req.isAuthenticated()) {
-        req.session.returnTo = req.originalUrl
-        req.flash('error', 'You must be signed in first!');
-        return res.redirect('/login');
-    }
-    next();
-}
 
 module.exports.isEntryOwner = async (req, res, next) => {
     const { id } = req.params; 
@@ -41,4 +34,17 @@ module.exports.isProfileOwner = (req, res, next) => {
         req.flash('error', 'You do not have permission to access this profile!');
         return res.redirect('/users/profile');
     }
+};
+
+module.exports.authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; 
+
+    if (token == null) return res.sendStatus(401);
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403); 
+        req.user = user;
+        next();
+    });
 };

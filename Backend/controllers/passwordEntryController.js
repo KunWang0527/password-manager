@@ -1,20 +1,26 @@
 const PasswordEntry = require('../models/PasswordEntry');
-const { encrypt, decrypt } = require('./encryption');
+const { encrypt, decrypt } = require('../encryption');
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+
 
 
 exports.createPasswordEntry = async (req, res) => {
-    const { url, password, length, alphabet, numerals, symbols } = req.body;
+    if (!req.user) {
+        return res.status(403).json({ message: "Unauthorized" });
+    }
 
-    // Validate input: URL is required
-    if (!url) {
-        return res.status(400).json({ message: "URL is required." });
+    const { website, username, password, length, alphabet, numerals, symbols } = req.body;
+
+    // Validate input: Website is required
+    if (!website) {
+        return res.status(400).json({ message: "Website is required." });
     }
 
     // Handle password generation or use the provided one
     let finalPassword = password;
     if (!finalPassword) {
-        // criteria check
+        // Criteria check
         if (!(alphabet || numerals || symbols) || length < 4 || length > 50) {
             return res.status(400).json({ message: "Invalid password generation criteria." });
         }
@@ -23,17 +29,16 @@ exports.createPasswordEntry = async (req, res) => {
 
     const encryptedPassword = encrypt(finalPassword);
 
-    // Create the new password entry
     try {
         const newEntry = new PasswordEntry({
-            url,
-            password: encryptedPassword, // Save the encrypted password
-            user: req.user._id
+            website, 
+            username: username || "", // Optional, falls back to an empty string if not provided
+            password: encryptedPassword,
+            user: req.user.userId, 
         });
 
         await newEntry.save();
 
-        // Respond with the saved entry, excluding the encrypted password for security
         const responseEntry = {
             ...newEntry.toObject(),
             password: undefined 
@@ -48,7 +53,7 @@ exports.createPasswordEntry = async (req, res) => {
 
 
 exports.getPasswordEntries = async (req, res) => {
-    const entries = await PasswordEntry.find({ user: req.user._id });
+    const entries = await PasswordEntry.find({ user: req.user.userId });
 
     const decryptedEntries = entries.map(entry => {
         return {
@@ -57,7 +62,7 @@ exports.getPasswordEntries = async (req, res) => {
         };
     });
 
-    res.json(decryptedEntries);
+    res.json({ passwords: decryptedEntries });
 };
 
 exports.sharePasswordEntry = async (req, res) => {
@@ -86,7 +91,7 @@ exports.shareAllPasswordEntries = async (req, res) => {
 
     // Ensure the recipient exists and is not the current user
     const recipient = await User.findById(userIdToShareWith);
-    if (!recipient || recipient._id.equals(req.user._id)) {
+    if (!recipient || recipient._id.equals(req.user.userId)) {
         return res.status(400).json({ message: 'Invalid share recipient.' });
     }
 
@@ -164,9 +169,6 @@ exports.revokeAllAccess = async (req, res) => {
 };
 
 
-function generateSecureRandom(length) {
-    return crypto.randomInt(0, length);
-}
 
 function generatePassword(length, options) {
     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -181,17 +183,17 @@ function generatePassword(length, options) {
     if (options.symbols) characters += symbols;
 
     // Ensure each selected type is represented at least once
-    if (options.alphabet) password += alphabet[generateSecureRandom(alphabet.length)];
-    if (options.numerals) password += numerals[generateSecureRandom(numerals.length)];
-    if (options.symbols) password += symbols[generateSecureRandom(symbols.length)];
+    if (options.alphabet) password += alphabet.charAt(crypto.randomInt(0, alphabet.length));
+    if (options.numerals) password += numerals.charAt(crypto.randomInt(0, numerals.length));
+    if (options.symbols) password += symbols.charAt(crypto.randomInt(0, symbols.length));
 
     // Fill the rest of the password length with random characters from the combined string
-    for (let i = password.length; i < length; i++) {
-        password += characters[generateSecureRandom(characters.length)];
+    while (password.length < length) {
+        const randomIndex = crypto.randomInt(0, characters.length);
+        password += characters.charAt(randomIndex);
     }
 
-    // Shuffle the password to mix the initial characters
-    password = password.split('').sort(() => generateSecureRandom(2) - 1).join('');
+    // Shuffling not necessary as characters are already chosen at random
 
     return password;
 }

@@ -1,30 +1,30 @@
 const express = require('express');
 const router = express.Router();
 const passwordEntriesController = require('../controllers/passwordEntryController');
-const { isLoggedIn, isEntryOwner } = require('../middleware/authMiddleware');
+const { isLoggedIn, isEntryOwner, authenticateToken } = require('../middleware');
 const catchAsync = require('../utils/catchAsync');
 
 
-router.post('/', isLoggedIn, catchAsync(passwordEntriesController.createPasswordEntry));
+router.post('/', authenticateToken, catchAsync(passwordEntriesController.createPasswordEntry));
 
-router.get('/', isLoggedIn, catchAsync(passwordEntriesController.getPasswordEntries));
+router.get('/', authenticateToken, catchAsync(passwordEntriesController.getPasswordEntries));
 
-router.post('/:id/share', isLoggedIn, isEntryOwner, catchAsync(passwordEntriesController.sharePasswordEntry));
+router.post('/:id/share', authenticateToken, isEntryOwner, catchAsync(passwordEntriesController.sharePasswordEntry));
 
-router.post('/:id/share-request', isLoggedIn, isEntryOwner, catchAsync(passwordEntriesController.sendShareRequest));
+router.post('/:id/share-request', authenticateToken, isEntryOwner, catchAsync(passwordEntriesController.sendShareRequest));
 
-router.post('/share-all', isLoggedIn, catchAsync(passwordEntriesController.shareAllPasswordEntries));
+router.post('/share-all', authenticateToken, catchAsync(passwordEntriesController.shareAllPasswordEntries));
 
-router.post('/:id/accept-share', isLoggedIn, catchAsync(passwordEntriesController.acceptShareRequest));
+router.post('/:id/accept-share', authenticateToken, catchAsync(passwordEntriesController.acceptShareRequest));
 
-router.post('/:id/reject-share', isLoggedIn, catchAsync(passwordEntriesController.rejectShareRequest));
+router.post('/:id/reject-share', authenticateToken, catchAsync(passwordEntriesController.rejectShareRequest));
 
-router.post('/:id/revoke-access', isLoggedIn, isEntryOwner, catchAsync(passwordEntriesController.revokeAccess));
+router.post('/:id/revoke-access', authenticateToken, isEntryOwner, catchAsync(passwordEntriesController.revokeAccess));
 
-router.post('/revoke-all-access', isLoggedIn, catchAsync(passwordEntriesController.revokeAllAccess));
+router.post('/revoke-all-access', authenticateToken, catchAsync(passwordEntriesController.revokeAllAccess));
 
-router.put('/:id', isLoggedIn, isEntryOwner, catchAsync(passwordEntriesController.updatePasswordEntry));
+router.put('/:id', authenticateToken, isEntryOwner, catchAsync(passwordEntriesController.updatePasswordEntry));
 
-router.delete('/:id', isLoggedIn, isEntryOwner, catchAsync(passwordEntriesController.deletePasswordEntry));
+router.delete('/:id', authenticateToken, isEntryOwner, catchAsync(passwordEntriesController.deletePasswordEntry));
 
 module.exports = router;
