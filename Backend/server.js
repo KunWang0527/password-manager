@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const express = require('express');
 const session = require('express-session');
+const flash = require('connect-flash');
 const passport = require('passport');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -15,6 +16,15 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(session({
+    secret: 'your_secret_key',
+    saveUninitialized: true,
+    resave: true
+  }));
+  
+
+  app.use(flash());
 
 
 app.use(session({

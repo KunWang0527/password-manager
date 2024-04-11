@@ -7,13 +7,13 @@ import Alert from 'react-bootstrap/Alert';
 
 const CreatePasswordEntryPage = () => {
   const [formData, setFormData] = useState({
-    website: '', // Changed from 'url' to 'website' to match backend expectations
+    website: '',
     username: '', // Optional username for the website
     password: '', // User provided or left blank for backend to generate
     alphabet: false,
     numerals: false,
     symbols: false,
-    length: 12, // Default length for password generation
+    length: 12, 
   });
   const [message, setMessage] = useState({ type: '', content: '' });
   const navigate = useNavigate();
@@ -28,7 +28,7 @@ const CreatePasswordEntryPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('token'); // Retrieve the token from localStorage
+    const token = localStorage.getItem('token'); 
 
     // Check for the URL
     if (!formData.website) {

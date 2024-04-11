@@ -1,6 +1,7 @@
 const { userSchema, passwordEntrySchema } = require('./schemas');
 const PasswordEntry = require('./models/PasswordEntry'); 
 const User = require('./models/User'); 
+const flash = require('connect-flash');
 const jwt = require('jsonwebtoken');
 
 

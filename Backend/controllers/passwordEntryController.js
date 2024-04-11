@@ -66,24 +66,34 @@ exports.getPasswordEntries = async (req, res) => {
 };
 
 exports.sharePasswordEntry = async (req, res) => {
-    const { id } = req.params; 
-    const { userIdToShareWith } = req.body; 
+    const { id } = req.params;
+    const { usernameToShareWith } = req.body; 
 
-    const passwordEntry = await PasswordEntry.findById(id);
-    if (!passwordEntry) {
-        return res.status(404).json({ message: 'Password entry not found.' });
+    try {
+
+        const userToShareWith = await User.findOne({ username: usernameToShareWith });
+        if (!userToShareWith) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        const passwordEntry = await PasswordEntry.findById(id);
+        if (!passwordEntry) {
+            return res.status(404).json({ message: 'Password entry not found.' });
+        }
+        
+        if (passwordEntry.shareRequests.some(request => request.user.equals(userToShareWith._id))) {
+            return res.status(400).json({ message: 'Password entry already shared with this user.' });
+        }
+
+        // Add the user to the shareRequests array and save
+        passwordEntry.shareRequests.push({ user: userToShareWith._id });
+        await passwordEntry.save();
+
+        res.status(200).json({ message: 'Password entry shared successfully.' });
+    } catch (error) {
+        console.error(`Failed to share password entry: ${error}`);
+        res.status(500).json({ message: "Failed to share password entry.", error: error.message });
     }
-    
-    // Check if already shared
-    if (passwordEntry.sharedWith.includes(userIdToShareWith)) {
-        return res.status(400).json({ message: 'Password entry already shared with this user.' });
-    }
-
-    // Add the user to the sharedWith array and save
-    passwordEntry.sharedWith.push(userIdToShareWith);
-    await passwordEntry.save();
-
-    res.status(200).json({ message: 'Password entry shared successfully.' });
 };
 
 exports.shareAllPasswordEntries = async (req, res) => {
