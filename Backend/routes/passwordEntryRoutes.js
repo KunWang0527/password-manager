@@ -16,4 +16,7 @@ router.delete('/:id', authenticateToken, isEntryOwner, catchAsync(passwordEntrie
 
 router.get('/shared-with-me', authenticateToken, passwordEntriesController.getSharedPasswords);
 
+router.get('/search', authenticateToken, passwordEntriesController.searchPasswordEntries);
+
+
 module.exports = router;

@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
-import { useAuth } from '../context/AuthContext'; 
-
+import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -14,8 +13,15 @@ const LoginPage = () => {
   });
   const [message, setMessage] = useState({ type: '', content: '' });
   const navigate = useNavigate();
-  const { login } = useAuth(); 
+  const { user, login } = useAuth();
 
+  // Check if user is already logged in
+  useEffect(() => {
+    if (user) {
+      setMessage({ type: 'success', content: 'You are already logged in. Redirecting to dashboard...' });
+      setTimeout(() => navigate('/dashboard'), 1000);
+    }
+  }, [user, navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -23,6 +29,11 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (user) {
+      setMessage({ type: 'warning', content: 'You are already logged in.' });
+      return;
+    }
+
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/login`, {
         method: 'POST',
@@ -40,7 +51,6 @@ const LoginPage = () => {
       login(data.user, data.token);
       setMessage({ type: 'success', content: 'Login successful! Redirecting to dashboard...' });
       setFormData({ username: '', password: '' });
-      // Redirect user after a short delay
       setTimeout(() => navigate('/dashboard'), 1000);
     } catch (error) {
       console.error("Login failed:", error);
@@ -55,7 +65,6 @@ const LoginPage = () => {
         <Alert variant={message.type}>{message.content}</Alert>
       )}
       <Form onSubmit={handleSubmit}>
-        {/* Username form group */}
         <Form.Group controlId="formBasicUsername">
           <Form.Label>Username</Form.Label>
           <Form.Control
@@ -68,7 +77,6 @@ const LoginPage = () => {
           />
         </Form.Group>
 
-        {/* Password form group */}
         <Form.Group controlId="formBasicPassword">
           <Form.Label>Password</Form.Label>
           <Form.Control

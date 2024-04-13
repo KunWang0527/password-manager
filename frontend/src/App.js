@@ -11,9 +11,8 @@ import DashboardPage from './components/DashboardPage';
 import CreatePasswordEntryPage from './components/CreatePasswordEntryPage';
 import IncomingShareRequests from './components/IncomingShareRequests';
 import RequireAuth from './components/RequireAuth';
-
-
-
+import MyPasswordEntries from './components/MyPasswordEntries';
+import SearchPage from './components/SearchPage';
 
 
 function App() {
@@ -31,6 +30,10 @@ function App() {
         <Route path="/dashboard" element={<RequireAuth><DashboardPage /></RequireAuth>} />
         <Route path="/create" element={<RequireAuth><CreatePasswordEntryPage /></RequireAuth>} />
         <Route path="/share-requests" element={<RequireAuth><IncomingShareRequests /></RequireAuth>} />
+        <Route path="/mypasswords" element={<RequireAuth><MyPasswordEntries /></RequireAuth>} />
+        <Route path="/search" element={<RequireAuth><SearchPage /></RequireAuth>} />
+
+
       </Routes>
           <Footer />
         </div>

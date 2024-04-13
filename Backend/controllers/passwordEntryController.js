@@ -56,7 +56,6 @@ exports.getPasswordEntries = async (req, res) => {
             ...entry.toObject(),
             password: decrypt(entry.password)
         }));
-
         res.json({ passwords: decryptedEntries });
     } catch (error) {
         console.error(`Failed to retrieve password entries: ${error}`);
@@ -136,7 +135,24 @@ exports.getSharedPasswords = async (req, res) => {
     }
 };
 
+exports.searchPasswordEntries = async (req, res) => {
+    const { query } = req.query;
+    const userId = req.user.userId;
 
+    try {
+        const results = await PasswordEntry.find({
+            user: userId,
+            $or: [
+                { website: { $regex: query, $options: 'i' } }, 
+                { username: { $regex: query, $options: 'i' } } 
+            ]
+        });
+        res.json(results || []);
+    } catch (error) {
+        console.error("Search failed:", error);
+        res.status(500).json({ message: "Failed to perform search", error: error.message });
+    }
+};
 
 
 function generatePassword(length, options) {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
 import Button from 'react-bootstrap/Button';
+import { useAuth } from '../context/AuthContext';
 
 const SharedWithMe = () => {
   const [sharedPasswords, setSharedPasswords] = useState([]);
@@ -28,9 +28,9 @@ const SharedWithMe = () => {
   }, [user, token]);
 
   const togglePasswordVisibility = (id) => {
-    setVisiblePasswords(prevState => ({
-      ...prevState,
-      [id]: !prevState[id]
+    setVisiblePasswords(prev => ({
+      ...prev,
+      [id]: !prev[id]
     }));
   };
 
@@ -42,14 +42,14 @@ const SharedWithMe = () => {
           {sharedPasswords.map((password) => (
             <li key={password._id}>
               <strong>Website:</strong> {password.website}<br />
-              {password.username && <>
-                <strong>Username:</strong> {password.username}<br />
-              </>}
+              {password.username && <><strong>Username:</strong> {password.username}<br /></>}
               <strong>Password:</strong> {visiblePasswords[password._id] ? password.password : '****'}
-              <button onClick={() => togglePasswordVisibility(password._id)}>
-                {visiblePasswords[password._id] ? 'Hide' : 'Show'}
-              </button><br />
+              <br />
               <strong>Shared with you by:</strong> {password.sharedBy}
+              <br></br>
+              <Button onClick={() => togglePasswordVisibility(password._id)} variant="outline-success">
+                {visiblePasswords[password._id] ? 'Hide' : 'Show'}
+              </Button>
             </li>
           ))}
         </ul>
@@ -59,5 +59,5 @@ const SharedWithMe = () => {
     </div>
   );
 };
-  
+
 export default SharedWithMe;

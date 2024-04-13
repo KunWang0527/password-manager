@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
-import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import { useAuth } from '../context/AuthContext';
@@ -10,10 +9,8 @@ import SharedWithMe from './ShareWithMe';
 
 const DashboardPage = () => {
   const { user } = useAuth();
+  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
-  const [showModal, setShowModal] = useState(false);
-  const [selectedPasswordId, setSelectedPasswordId] = useState(null);
-  const [shareWithEmail, setShareWithEmail] = useState('');
 
   useEffect(() => {
     if (!user) {
@@ -21,86 +18,28 @@ const DashboardPage = () => {
     }
   }, [user, navigate]);
 
-  const handleOpenModal = (passwordId) => {
-    setSelectedPasswordId(passwordId);
-    setShowModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setShareWithEmail('');
-  };
-
-  const handleSharePassword = async (shareWithEmail) => {
-    if (!shareWithEmail) {
-      alert('Please enter a user email to share with.');
-      return;
-    }
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/shares/${selectedPasswordId}/share`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ emailToShareWith: shareWithEmail }),
-      });
-
-      const data = await response.json();  // Decode JSON response
-      if (!response.ok) {
-        console.error('Failed to share password entry:', data);
-        throw new Error(data.message || 'Failed to share password entry');
-      }
-
-      alert('Password shared successfully');
-      handleCloseModal();
-    } catch (error) {
-      alert(error.message);
-    }
-  };
+  const handleSearch = (e) => {
+    e.preventDefault();
+    navigate(`/search?query=${searchQuery}`);
+};
 
   return (
     <Container className="my-3">
       <h2>Dashboard</h2>
-      <div className="d-flex justify-content-between">
-        <div>
-          <p>Username: {user.username}</p>
-          <p>Email: {user.email}</p>
-        </div>
-      </div>
-      <MyPasswordEntry onOpenModal={handleOpenModal} />
-      <SharedWithMe onOpenModal={handleOpenModal} />
+      <Form onSubmit={handleSearch}>
+            <Form.Control
+                type="text"
+                placeholder="Search passwords"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+            />
+            <Button type="submit">Search</Button>
+        </Form>
 
-      {/* Modal for sharing a password */}
-      <Modal show={showModal} onHide={handleCloseModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>Share Password</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group>
-              <Form.Label>Email to share with:</Form.Label>
-              <Form.Control
-                type="email"
-                value={shareWithEmail}
-                onChange={(e) => setShareWithEmail(e.target.value)}
-                placeholder="Enter user's email"
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={() => handleSharePassword(shareWithEmail)}>
-            Share Password
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <MyPasswordEntry showActions={false} />
+      <SharedWithMe />
     </Container>
-  );
-};
+);
+}
 
 export default DashboardPage;
