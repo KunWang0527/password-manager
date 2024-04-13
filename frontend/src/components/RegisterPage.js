@@ -38,10 +38,7 @@ const RegisterPage = () => {
         throw new Error(data.message || 'Failed to register');
       }
 
-      localStorage.setItem('token', data.token); 
-
-      login(data.user); 
-
+      login(data.user, data.token);
 
       setMessage({ type: 'success', content: 'Registration successful! Redirecting to dashboard...' });
       setFormData({ email: '', username: '', password: '' });

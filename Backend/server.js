@@ -12,33 +12,27 @@ const User = require('./models/User');
 const app = express();
 const port = process.env.PORT || 5000;
 
-
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3000'
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
     secret: 'your_secret_key',
     saveUninitialized: true,
-    resave: true
-  }));
-  
-
-  app.use(flash());
-
-
-app.use(session({
-    secret: 'wklbylyc',
-    resave: false,
-    saveUninitialized: true,
+    resave: true,
     cookie: { secure: false } 
-  }));
+}));
+
+
+app.use(flash());
+
 
 app.use(passport.initialize());
 app.use(passport.session());
 
 passport.use(User.createStrategy());
-
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
@@ -48,14 +42,15 @@ const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'Error connecting to MongoDB:'));
 db.once('open', () => console.log('Connected to Database'));
 
-
 // Import routes from the routes directory
-const userRoutes = require('./routes/userRoutes'); 
-const passwordEntryRoutes = require('./routes/passwordEntryRoutes'); 
+const userRoutes = require('./routes/userRoutes');
+const passwordEntryRoutes = require('./routes/passwordEntryRoutes');
+const shareRequestRoutes = require('./routes/shareRequestRoutes'); 
 
-// Use routes with prefixes for clear API path delineation
-app.use('/api/users', userRoutes); 
-app.use('/api/passwords', passwordEntryRoutes); 
+app.use('/api/users', userRoutes);
+app.use('/api/passwords', passwordEntryRoutes);
+app.use('/api/shares', shareRequestRoutes); 
+
 
 app.get('/', (req, res) => {
     res.send('Hello, world!');

@@ -28,20 +28,22 @@ const CreatePasswordEntryPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('token'); 
-
-    // Check for the URL
+    const token = localStorage.getItem('token');
+  
+    // Basic validation similar to backend logic
     if (!formData.website) {
       setMessage({ type: 'danger', content: 'URL is required.' });
       return;
     }
-
-    // Ensure that if no password is provided, at least one criteria is selected
     if (!formData.password && !(formData.alphabet || formData.numerals || formData.symbols)) {
       setMessage({ type: 'danger', content: 'Please provide a password or select criteria for generating one.' });
       return;
     }
-
+    if (!formData.password && (formData.length < 4 || formData.length > 50)) {
+      setMessage({ type: 'danger', content: 'Password length must be between 4 and 50.' });
+      return;
+    }
+  
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/passwords`, {
         method: 'POST',
@@ -51,12 +53,12 @@ const CreatePasswordEntryPage = () => {
         },
         body: JSON.stringify(formData),
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to create password entry');
       }
-
+  
       setMessage({ type: 'success', content: 'Password entry created successfully!' });
       navigate('/dashboard'); 
     } catch (error) {

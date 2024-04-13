@@ -3,7 +3,7 @@ const router = express.Router();
 const users = require('../controllers/userController');
 const catchAsync = require('../utils/catchAsync');
 const passport = require('passport');
-const { isLoggedIn, isProfileOwner, authenticateToken} = require('../middleware');
+const {isProfileOwner, authenticateToken} = require('../middleware');
 
 
 router.route('/register')

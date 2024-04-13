@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link,NavLink } from 'react-router-dom';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import Button from 'react-bootstrap/Button';
@@ -17,16 +17,23 @@ const Header = () => {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
             <Nav.Link as={Link} to="/dashboard">Home</Nav.Link>
-            {user && <Nav.Link as={Link} to="/CreatePasswordEntry">StorePassword</Nav.Link>}
+            {user && <Nav.Link as={Link} to="/create">StorePassword</Nav.Link>}
             {user && <Nav.Link as={Link} to="/profile">Profile</Nav.Link>}
+            {user && <Nav.Link as={Link} to="/share-requests">View request</Nav.Link>}
+
           </Nav>
           <Nav className="justify-content-end" style={{ width: "100%" }}>
             {user ? (
-              <Button variant="outline-info" onClick={logout}>Logout</Button>
+              <>
+                <Navbar.Text className="me-3">
+                  Signed in as: <strong>{user.username}</strong>
+                </Navbar.Text>
+                <Button variant="outline-info" onClick={logout}>Logout</Button>
+              </>
             ) : (
               <>
-                <Nav.Link as={Link} to="/login">Login</Nav.Link>
-                <Nav.Link as={Link} to="/register">Register</Nav.Link>
+                <NavLink to="/login" className="nav-link">Login</NavLink>
+                <NavLink to="/register" className="nav-link">Register</NavLink>
               </>
             )}
           </Nav>

@@ -1,26 +1,22 @@
 const PasswordEntry = require('../models/PasswordEntry');
+const ShareRequest = require('../models/ShareRequest');
 const { encrypt, decrypt } = require('../encryption');
 const crypto = require('crypto');
-const jwt = require('jsonwebtoken');
 
 
 
+// Create Password Entry
 exports.createPasswordEntry = async (req, res) => {
-    if (!req.user) {
-        return res.status(403).json({ message: "Unauthorized" });
-    }
-
     const { website, username, password, length, alphabet, numerals, symbols } = req.body;
 
-    // Validate input: Website is required
+    // Validate required fields
     if (!website) {
         return res.status(400).json({ message: "Website is required." });
     }
 
-    // Handle password generation or use the provided one
     let finalPassword = password;
     if (!finalPassword) {
-        // Criteria check
+        // Password generation criteria check
         if (!(alphabet || numerals || symbols) || length < 4 || length > 50) {
             return res.status(400).json({ message: "Invalid password generation criteria." });
         }
@@ -32,151 +28,114 @@ exports.createPasswordEntry = async (req, res) => {
     try {
         const newEntry = new PasswordEntry({
             website, 
-            username: username || "", // Optional, falls back to an empty string if not provided
+            username: username || "",
             password: encryptedPassword,
-            user: req.user.userId, 
+            user: req.user.userId
         });
 
         await newEntry.save();
-
-        const responseEntry = {
-            ...newEntry.toObject(),
-            password: undefined 
-        };
-
-        res.status(201).json(responseEntry);
+        res.status(201).json({
+            message: 'Password entry created successfully.',
+            passwordEntry: {
+                id: newEntry._id,
+                website: newEntry.website,
+                username: newEntry.username
+            }
+        });
     } catch (error) {
         console.error(`Failed to create password entry: ${error}`);
-        res.status(500).json({ message: "Failed to create password entry." });
+        res.status(500).json({ message: "Failed to create password entry.", error: error.message });
     }
 };
 
-
+// Retrieve Password Entries
 exports.getPasswordEntries = async (req, res) => {
-    const entries = await PasswordEntry.find({ user: req.user.userId });
-
-    const decryptedEntries = entries.map(entry => {
-        return {
+    try {
+        const entries = await PasswordEntry.find({ user: req.user.userId });
+        const decryptedEntries = entries.map(entry => ({
             ...entry.toObject(),
             password: decrypt(entry.password)
-        };
-    });
+        }));
 
-    res.json({ passwords: decryptedEntries });
-};
-
-exports.sharePasswordEntry = async (req, res) => {
-    const { id } = req.params;
-    const { usernameToShareWith } = req.body; 
-
-    try {
-
-        const userToShareWith = await User.findOne({ username: usernameToShareWith });
-        if (!userToShareWith) {
-            return res.status(404).json({ message: 'User not found.' });
-        }
-
-        const passwordEntry = await PasswordEntry.findById(id);
-        if (!passwordEntry) {
-            return res.status(404).json({ message: 'Password entry not found.' });
-        }
-        
-        if (passwordEntry.shareRequests.some(request => request.user.equals(userToShareWith._id))) {
-            return res.status(400).json({ message: 'Password entry already shared with this user.' });
-        }
-
-        // Add the user to the shareRequests array and save
-        passwordEntry.shareRequests.push({ user: userToShareWith._id });
-        await passwordEntry.save();
-
-        res.status(200).json({ message: 'Password entry shared successfully.' });
+        res.json({ passwords: decryptedEntries });
     } catch (error) {
-        console.error(`Failed to share password entry: ${error}`);
-        res.status(500).json({ message: "Failed to share password entry.", error: error.message });
+        console.error(`Failed to retrieve password entries: ${error}`);
+        res.status(500).json({ message: "Failed to retrieve password entries.", error: error.message });
     }
 };
 
-exports.shareAllPasswordEntries = async (req, res) => {
-    const { userIdToShareWith } = req.body; // The ID of the user to share with
-
-    // Ensure the recipient exists and is not the current user
-    const recipient = await User.findById(userIdToShareWith);
-    if (!recipient || recipient._id.equals(req.user.userId)) {
-        return res.status(400).json({ message: 'Invalid share recipient.' });
-    }
-
-    // Fetch all password entries owned by the current user
-    const ownedEntries = await PasswordEntry.find({ user: req.user._id });
-
-    // Iterate over each entry and add a share request
-    const sharePromises = ownedEntries.map(entry => {
-        if (!entry.shareRequests.some(request => request.user.equals(userIdToShareWith))) {
-            entry.shareRequests.push({ user: userIdToShareWith, status: 'pending' });
-            return entry.save();
-        }
-    });
-
-    // Wait for all share requests to be processed
-    await Promise.all(sharePromises);
-
-    res.json({ message: `All password entries shared with ${recipient.username}.` });
-};
-
+// Update Password Entry
 exports.updatePasswordEntry = async (req, res) => {
     const { id } = req.params;
     const { website, username, password } = req.body;
 
-    const encryptedPassword = encrypt(password); 
+    const encryptedPassword = encrypt(password);
 
-    const entry = await PasswordEntry.findByIdAndUpdate(id, { website, username, password: encryptedPassword }, { new: true });
-    
-    if (!entry) {
-        return res.status(404).json({ message: "Password entry not found." });
+    try {
+        const updatedEntry = await PasswordEntry.findByIdAndUpdate(
+            id, 
+            { website, username, password: encryptedPassword }, 
+            { new: true }
+        );
+
+        if (!updatedEntry) {
+            return res.status(404).json({ message: "Password entry not found." });
+        }
+
+        res.json({
+            message: 'Password entry updated successfully.',
+            passwordEntry: {
+                id: updatedEntry._id,
+                website: updatedEntry.website,
+                username: updatedEntry.username
+            }
+        });
+    } catch (error) {
+        console.error(`Failed to update password entry: ${error}`);
+        res.status(500).json({ message: "Failed to update password entry.", error: error.message });
     }
-
-    res.json({
-        ...entry.toObject(),
-        password: undefined
-    });
 };
 
+// Delete Password Entry
 exports.deletePasswordEntry = async (req, res) => {
     const { id } = req.params;
-    await PasswordEntry.findByIdAndDelete(id);
-    res.status(204).json({ message: 'Password entry deleted' });
-};
 
-exports.revokeAccess = async (req, res) => {
-    const { id } = req.params; // ID of the password entry
-    const { userIdToRevoke } = req.body; // ID of the user to revoke access from
-
-    const passwordEntry = await PasswordEntry.findById(id);
-    if (!passwordEntry) {
-        return res.status(404).json({ message: 'Password entry not found.' });
+    try {
+        await PasswordEntry.findByIdAndDelete(id);
+        res.status(204).json({ message: 'Password entry deleted successfully.' });
+    } catch (error) {
+        console.error(`Failed to delete password entry: ${error}`);
+        res.status(500).json({ message: "Failed to delete password entry.", error: error.message });
     }
-
-    // Remove the user from the sharedWith array
-    passwordEntry.sharedWith = passwordEntry.sharedWith.filter(user => !user.equals(userIdToRevoke));
-    await passwordEntry.save();
-
-    res.json({ message: 'Access revoked successfully.' });
 };
 
-exports.revokeAllAccess = async (req, res) => {
-    const { userIdToRevoke } = req.body; // ID of the user to revoke access from all entries
+exports.getSharedPasswords = async (req, res) => {
+    try {
+        const sharedEntries = await ShareRequest.find({
+            toUser: req.user.userId,
+            status: 'accepted'
+        })
+        .populate({
+            path: 'passwordEntry',
+            populate: {
+                path: 'user',
+                select: 'username' // Only fetch the username of the user
+            }
+        });
 
-    // Find all entries shared with the specified user and remove them from the sharedWith array
-    const updateResult = await PasswordEntry.updateMany(
-        { user: req.user._id, sharedWith: userIdToRevoke },
-        { $pull: { sharedWith: userIdToRevoke } }
-    );
+        const entriesWithDecryptedPasswords = sharedEntries.map(request => ({
+            ...request.passwordEntry.toObject(),
+            password: decrypt(request.passwordEntry.password),
+            sharedBy: request.passwordEntry.user.username 
+        }));
 
-    if (updateResult.modifiedCount === 0) {
-        return res.status(404).json({ message: 'No shared entries found for the specified user.' });
+        res.json({ sharedPasswords: entriesWithDecryptedPasswords });
+    } catch (error) {
+        console.error('Failed to fetch shared passwords:', error);
+        res.status(500).json({ message: "Failed to fetch shared passwords.", error: error.message });
     }
-
-    res.json({ message: `Access revoked for all shared entries from user ${userIdToRevoke}.` });
 };
+
 
 
 

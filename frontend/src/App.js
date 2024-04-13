@@ -9,6 +9,11 @@ import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage'; 
 import DashboardPage from './components/DashboardPage';
 import CreatePasswordEntryPage from './components/CreatePasswordEntryPage';
+import IncomingShareRequests from './components/IncomingShareRequests';
+import RequireAuth from './components/RequireAuth';
+
+
+
 
 
 function App() {
@@ -18,12 +23,15 @@ function App() {
         <div className="App">
           <Header />
           <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/register" element={<RegisterPage />} /> 
-            <Route path="/login" element={<LoginPage />} /> 
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/CreatePasswordEntry" element={<CreatePasswordEntryPage />} />
-          </Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/register" element={<RegisterPage />} /> 
+        <Route path="/login" element={<LoginPage />} /> 
+
+        {/* Protected routes */}
+        <Route path="/dashboard" element={<RequireAuth><DashboardPage /></RequireAuth>} />
+        <Route path="/create" element={<RequireAuth><CreatePasswordEntryPage /></RequireAuth>} />
+        <Route path="/share-requests" element={<RequireAuth><IncomingShareRequests /></RequireAuth>} />
+      </Routes>
           <Footer />
         </div>
       </Router>

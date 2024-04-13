@@ -37,14 +37,11 @@ const LoginPage = () => {
         throw new Error(data.message || 'Login failed');
       }
 
-      localStorage.setItem('token', data.token); 
-
-      login(data.user); 
+      login(data.user, data.token);
       setMessage({ type: 'success', content: 'Login successful! Redirecting to dashboard...' });
-      // Optionally clear the form
       setFormData({ username: '', password: '' });
       // Redirect user after a short delay
-      setTimeout(() => navigate('/dashboard'), 3000);
+      setTimeout(() => navigate('/dashboard'), 1000);
     } catch (error) {
       console.error("Login failed:", error);
       setMessage({ type: 'danger', content: error.message || 'Login failed. Please try again.' });
