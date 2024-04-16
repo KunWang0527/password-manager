@@ -1,4 +1,4 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
+import './assets/bootstrap.min.css';
 import React from 'react';
 import { AuthProvider } from './context/AuthContext';
 import Header from './components/Header';
@@ -13,6 +13,11 @@ import IncomingShareRequests from './components/IncomingShareRequests';
 import RequireAuth from './components/RequireAuth';
 import MyPasswordEntries from './components/MyPasswordEntries';
 import SearchPage from './components/SearchPage';
+import Profile from './components/Profile';
+import RequestsFromMe from './components/RequestsFromMe';
+
+
+
 
 
 function App() {
@@ -32,6 +37,9 @@ function App() {
         <Route path="/share-requests" element={<RequireAuth><IncomingShareRequests /></RequireAuth>} />
         <Route path="/mypasswords" element={<RequireAuth><MyPasswordEntries /></RequireAuth>} />
         <Route path="/search" element={<RequireAuth><SearchPage /></RequireAuth>} />
+        <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
+        <Route path="/requestsFromMe" element={<RequireAuth><RequestsFromMe /></RequireAuth>} />
+
 
 
       </Routes>

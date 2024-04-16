@@ -69,14 +69,6 @@ module.exports.isEntryOwner = async (req, res, next) => {
     }
 };
 
-module.exports.isProfileOwner = (req, res, next) => {
-    const { userId } = req.params;
-    if (req.user.userId.toString() === userId) {
-        return next();
-    } else {
-        return res.status(403).json({ error: 'You do not have permission to access this profile!' });
-    }
-};
 
 module.exports.authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];

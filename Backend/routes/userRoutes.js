@@ -12,12 +12,14 @@ router.route('/register')
 router.route('/login')
     .post(catchAsync(users.login)); 
 
-router.get('/dashboard', authenticateToken, catchAsync(users.renderDashboard));
-
 router.route('/profile')
-    .get(authenticateToken, isProfileOwner, catchAsync(users.getProfile))
-    .delete(authenticateToken, isProfileOwner, catchAsync(users.deleteProfile)); 
+    .get(authenticateToken, catchAsync(users.getProfile))
+    .delete(authenticateToken, catchAsync(users.deleteProfile)); 
 
-router.get('/logout', authenticateToken, users.logout);
+router.put('/profile/username', authenticateToken, catchAsync(users.updateUsername));
+
+router.put('/profile/password', authenticateToken, catchAsync(users.updatePassword));
+
+router.get('/logout', authenticateToken, catchAsync(users.logout));
 
 module.exports = router;

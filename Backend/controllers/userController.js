@@ -13,6 +13,10 @@ exports.register = async (req, res) => {
             return res.status(400).json({ message: 'An account with this email already exists.' });
         }
 
+        const existingUsername = await User.findOne({ username });
+        if (existingUsername) {
+          return res.status(400).json({ message: 'An account with this username already exists.' });
+        }
         const newUser = new User({ email, username });
 
         User.register(newUser, password, async (err, user) => {
@@ -48,10 +52,11 @@ exports.login = (req, res, next) => {
             return res.status(400).json({ message: 'Username or password is incorrect' }); 
         }
 
+        const tokenExpirySeconds = 3600; 
         const token = jwt.sign(
             { userId: user._id, username: user.username }, 
             process.env.JWT_SECRET,
-            { expiresIn: '1h' } 
+            { expiresIn: tokenExpirySeconds } 
         );
 
         res.json({
@@ -60,23 +65,15 @@ exports.login = (req, res, next) => {
                 username: user.username, 
                 email: user.email 
             },
-            token 
+            token,
+            tokenExpiry: new Date(new Date().getTime() + tokenExpirySeconds * 1000)
         });
     })(req, res, next);
 };
 
-exports.renderDashboard = async (req, res) => {
-    try {
-        const userData = {/* Fetch user data */};
-        res.json(userData);
-    } catch (error) {
-        res.status(500).json({ error: 'Error fetching dashboard data.' });
-    }
-};
-
 exports.getProfile = async (req, res) => {
     try {
-        const user = await User.findById(req.user._id); 
+        const user = await User.findById(req.user.userId); 
         res.json({ user: user.toObject({ getters: true, virtuals: false }) });
     } catch (error) {
         res.status(400).json({ error: 'Cannot find user.' });
@@ -102,6 +99,48 @@ exports.deleteProfile = async (req, res) => {
     }
 };
 
+exports.updateUsername = async (req, res) => {
+    try {
+        const { username } = req.body;
+        if (!username) {
+            return res.status(400).json({ message: "Username is required." });
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(req.user.userId, { username }, { new: true });
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        res.json({ message: "Username updated successfully.", user: updatedUser });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to update username.", error: error.message });
+    }
+};
+
+exports.updatePassword = async (req, res) => {
+    const { newPassword } = req.body;
+    if (!newPassword) {
+        return res.status(400).json({ message: "New password is required." });
+    }
+
+    try {
+        const user = await User.findById(req.user.userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        user.setPassword(newPassword, async (error) => {
+            if (error) {
+                return res.status(500).json({ message: "Failed to update password.", error: error.message });
+            }
+
+            await user.save(); 
+            res.json({ message: "Password updated successfully." });
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to update password.", error: error.message });
+    }
+};
 
 exports.logout = (req, res) => {
     req.logout();

@@ -4,19 +4,16 @@ const passwordEntriesController = require('../controllers/passwordEntryControlle
 const { authenticateToken, isEntryOwner } = require('../middleware');
 const catchAsync = require('../utils/catchAsync');
 
-// Routes for creating and getting password entries
 router.post('/', authenticateToken, catchAsync(passwordEntriesController.createPasswordEntry));
 router.get('/', authenticateToken, catchAsync(passwordEntriesController.getPasswordEntries));
+router.get('/shared-with-me', authenticateToken, passwordEntriesController.getSharedPasswords);
+router.get('/search', authenticateToken, passwordEntriesController.searchPasswordEntries);
 
-// Route for updating a specific password entry
 router.put('/:id', authenticateToken, isEntryOwner, catchAsync(passwordEntriesController.updatePasswordEntry));
 
-// Route for deleting a specific password entry
 router.delete('/:id', authenticateToken, isEntryOwner, catchAsync(passwordEntriesController.deletePasswordEntry));
 
-router.get('/shared-with-me', authenticateToken, passwordEntriesController.getSharedPasswords);
 
-router.get('/search', authenticateToken, passwordEntriesController.searchPasswordEntries);
 
 
 module.exports = router;

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
-import { useAuth } from '../context/AuthContext'; // Path may vary based on your project structure
+import { useAuth } from '../context/AuthContext'; 
+import RequestsFromMe from './RequestsFromMe';
 
 const ShareRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -21,7 +22,7 @@ const ShareRequests = () => {
         }
 
         const data = await response.json();
-        setRequests(data); // Set the share requests in state
+        setRequests(data); 
       } catch (error) {
         console.error("Failed to fetch share requests:", error);
       }
@@ -30,7 +31,7 @@ const ShareRequests = () => {
     if (user && token) {
       fetchShareRequests();
     }
-  }, [user, token]); // Dependency array to re-fetch when these values change
+  }, [user, token]); 
 
   const handleAcceptRequest = async (requestId) => {
     try {
@@ -45,7 +46,6 @@ const ShareRequests = () => {
         throw new Error('Failed to accept share request');
       }
 
-      // Update the UI or reload share requests
       setRequests(requests.map(req => req._id === requestId ? { ...req, status: 'accepted' } : req));
     } catch (error) {
       console.error("Error accepting share request:", error);
@@ -66,7 +66,6 @@ const ShareRequests = () => {
         throw new Error('Failed to reject share request');
       }
 
-      // Update the UI or reload share requests
       setRequests(requests.map(req => req._id === requestId ? { ...req, status: 'rejected' } : req));
     } catch (error) {
       console.error("Error rejecting share request:", error);
@@ -88,7 +87,9 @@ const ShareRequests = () => {
           </li>
         ))}
       </ul>
+      <RequestsFromMe />
     </div>
+    
   );
 };
 

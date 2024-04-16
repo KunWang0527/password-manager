@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 
+
 const SharePasswordModal = ({ show, onHide, email, setEmail, handleShare }) => (
   <Modal show={show} onHide={onHide}>
     <Modal.Header closeButton>

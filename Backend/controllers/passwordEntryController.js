@@ -113,16 +113,20 @@ exports.getSharedPasswords = async (req, res) => {
         const sharedEntries = await ShareRequest.find({
             toUser: req.user.userId,
             status: 'accepted'
-        })
+        }
+        )
         .populate({
             path: 'passwordEntry',
             populate: {
                 path: 'user',
-                select: 'username' // Only fetch the username of the user
+                select: 'username' 
             }
         });
 
-        const entriesWithDecryptedPasswords = sharedEntries.map(request => ({
+        const validEntries = sharedEntries.filter(request => request.passwordEntry !== null);
+
+
+        const entriesWithDecryptedPasswords = validEntries.map(request => ({
             ...request.passwordEntry.toObject(),
             password: decrypt(request.passwordEntry.password),
             sharedBy: request.passwordEntry.user.username 

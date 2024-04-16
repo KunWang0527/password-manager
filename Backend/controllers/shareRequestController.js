@@ -6,9 +6,9 @@ const PasswordEntry = require('../models/PasswordEntry');
 
 // Create a new share request
 exports.createShareRequest = async (req, res) => {
-    const fromUser = req.user.userId;  // ID of the user creating the share request
-    const passwordEntryId = req.params.id;  // ID from the URL
-    const { emailToShareWith } = req.body;  // Email from the request body
+    const fromUser = req.user.userId;  
+    const passwordEntryId = req.params.id;  
+    const { emailToShareWith } = req.body;  
 
 
     try {
@@ -32,7 +32,6 @@ exports.createShareRequest = async (req, res) => {
             return res.status(404).json({ message: "Password entry not found." });
         }
 
-        // Create and save the new share request
         const newRequest = new ShareRequest({
             fromUser,
             toUser: toUser._id,
@@ -55,7 +54,6 @@ exports.createShareRequest = async (req, res) => {
     }
 };
 
-// Get all share requests
 exports.getAllShareRequests = async (req, res) => {
     try {
         const userId = req.user.userId; 
@@ -69,7 +67,26 @@ exports.getAllShareRequests = async (req, res) => {
     }
 };
 
-// Get a single share request by ID
+exports.getPendingShareRequests = async (req, res) => {
+    try {
+        const user = await User.findOne({ _id: req.user.userId });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        const pendingRequests = await ShareRequest.find({
+            toUser: req.user.userId, 
+            status: 'pending'
+        })
+        .populate('fromUser', 'username email')
+        .populate('passwordEntry');
+
+        res.status(200).json(pendingRequests);
+    } catch (error) {
+        console.error("Error fetching pending share requests:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
 exports.getShareRequestById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -86,19 +103,40 @@ exports.getShareRequestById = async (req, res) => {
     }
 };
 
-// Update a share request's status
-exports.updateShareRequest = async (req, res) => {
+exports.setToPending = async (req, res) => {
     const { id } = req.params;
-    const { status } = req.body; // Assume only status can be updated
+
     try {
-        const request = await ShareRequest.findByIdAndUpdate(id, { status }, { new: true })
-                                            .populate('fromUser', 'username email')
-                                            .populate('toUser', 'username email')
-                                            .populate('passwordEntry');
+        const request = await ShareRequest.findById(id);
         if (!request) {
             return res.status(404).json({ message: "Share request not found" });
         }
-        res.status(200).json(request);
+
+        if (request.status === 'accepted') {
+            return res.status(403).json({ message: "Request has already been accepted and cannot be modified." });
+        }
+
+        request.status = 'pending';
+        await request.save();
+        res.status(200).json({ message: "Request status updated to pending." });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to update share request", error: error.message });
+    }
+};
+
+exports.setToRevoked = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const request = await ShareRequest.findById(id);
+
+        if (!request) {
+            return res.status(404).json({ message: "Share request not found" });
+        }
+
+        request.status = 'revoked';
+        await request.save();
+        res.status(200).json({ message: "Request status updated to revoked." });
     } catch (error) {
         res.status(500).json({ message: "Failed to update share request", error: error.message });
     }
@@ -112,6 +150,8 @@ exports.deleteShareRequest = async (req, res) => {
         if (!deletedRequest) {
             return res.status(404).json({ message: "Share request not found" });
         }
+        const validEntries = sharedEntries.filter(request => request.passwordEntry !== null);
+
         res.status(200).json({ message: "Share request deleted successfully" });
     } catch (error) {
         res.status(500).json({ message: "Failed to delete share request", error: error.message });
@@ -154,3 +194,17 @@ exports.rejectShareRequest = async (req, res) => {
         res.status(500).json({ message: 'Failed to reject share request', error: error.message });
     }
 };
+
+
+exports.getMyShareRequests = async (req, res) => {
+    try {
+        const requests = await ShareRequest.find({ fromUser: req.user.userId })
+                                           .populate('toUser', 'username email')
+                                           .populate('passwordEntry', 'website'
+                                        );
+        res.json(requests);
+    } catch (error) {
+        res.status(500).json({ message: "Failed to fetch my share requests", error: error.message });
+    }
+};
+

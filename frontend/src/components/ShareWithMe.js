@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import Button from 'react-bootstrap/Button';
 import { useAuth } from '../context/AuthContext';
+import PasswordEntryCard from './PasswordEntryCard'; 
+import {handleCopyToClipboard } from '../utils/passwordUtilities';
+import './PasswordEntryCard.css';
+import { Container, Row, Col } from 'react-bootstrap';
+
 
 const SharedWithMe = () => {
   const [sharedPasswords, setSharedPasswords] = useState([]);
@@ -35,27 +39,29 @@ const SharedWithMe = () => {
   };
 
   return (
-    <div>
+    <div className="mt-4">
       <h3>Shared With Me</h3>
+      <Container>
+      <Row xs={1} md={4} >
       {sharedPasswords.length > 0 ? (
-        <ul>
-          {sharedPasswords.map((password) => (
-            <li key={password._id}>
-              <strong>Website:</strong> {password.website}<br />
-              {password.username && <><strong>Username:</strong> {password.username}<br /></>}
-              <strong>Password:</strong> {visiblePasswords[password._id] ? password.password : '****'}
-              <br />
-              <strong>Shared with you by:</strong> {password.sharedBy}
-              <br></br>
-              <Button onClick={() => togglePasswordVisibility(password._id)} variant="outline-success">
-                {visiblePasswords[password._id] ? 'Hide' : 'Show'}
-              </Button>
-            </li>
-          ))}
-        </ul>
+        sharedPasswords.map((password, index) => (
+            <Col><PasswordEntryCard
+                key={password._id + index} 
+                entry={password}
+                isVisible={visiblePasswords[password._id] || false}
+                onToggleVisibility={togglePasswordVisibility}
+                onCopyPassword={handleCopyToClipboard}
+                sharedBy={password.sharedBy} 
+                showActions={['show', 'copy']}
+            />    
+            </Col>
+        ))
       ) : (
         <p>No shared passwords.</p>
       )}
+      </Row>
+      <br></br><br></br><br></br><br></br><br></br><br></br>
+      </Container>
     </div>
   );
 };

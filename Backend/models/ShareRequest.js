@@ -19,9 +19,10 @@ const shareRequestSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ['rejected', 'pending', 'accepted'],
+        enum: ['rejected', 'pending', 'accepted','revoked'],
         default: 'pending'
     }
 }, { timestamps: true });
+
 
 module.exports = mongoose.model('ShareRequest', shareRequestSchema);

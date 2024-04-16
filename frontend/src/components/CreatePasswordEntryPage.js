@@ -8,8 +8,8 @@ import Alert from 'react-bootstrap/Alert';
 const CreatePasswordEntryPage = () => {
   const [formData, setFormData] = useState({
     website: '',
-    username: '', // Optional username for the website
-    password: '', // User provided or left blank for backend to generate
+    username: '', 
+    password: '', 
     alphabet: false,
     numerals: false,
     symbols: false,
@@ -29,8 +29,7 @@ const CreatePasswordEntryPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
-  
-    // Basic validation similar to backend logic
+
     if (!formData.website) {
       setMessage({ type: 'danger', content: 'URL is required.' });
       return;
@@ -72,7 +71,7 @@ const CreatePasswordEntryPage = () => {
       {message.content && <Alert variant={message.type}>{message.content}</Alert>}
       <Form onSubmit={handleSubmit}>
         <Form.Group controlId="website">
-          <Form.Label>Website URL</Form.Label>
+          <Form.Label>Website URL (Format: www.xxx.com)</Form.Label>
           <Form.Control
             type="text"
             name="website"

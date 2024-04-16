@@ -18,10 +18,11 @@ const LoginPage = () => {
   // Check if user is already logged in
   useEffect(() => {
     if (user) {
-      setMessage({ type: 'success', content: 'You are already logged in. Redirecting to dashboard...' });
-      setTimeout(() => navigate('/dashboard'), 1000);
+      navigate('/dashboard'); 
     }
   }, [user, navigate]);
+
+  const { logout } = useAuth();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -29,10 +30,6 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (user) {
-      setMessage({ type: 'warning', content: 'You are already logged in.' });
-      return;
-    }
 
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/login`, {
@@ -49,6 +46,11 @@ const LoginPage = () => {
       }
 
       login(data.user, data.token);
+      localStorage.setItem('tokenExpiry', new Date(new Date().getTime() + 3600 * 1000).toISOString()); // 1 hour from now
+      const tokenExpiry = localStorage.getItem('tokenExpiry');
+      if (new Date() > new Date(tokenExpiry)) {
+      logout(); 
+      }
       setMessage({ type: 'success', content: 'Login successful! Redirecting to dashboard...' });
       setFormData({ username: '', password: '' });
       setTimeout(() => navigate('/dashboard'), 1000);
