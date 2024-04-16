@@ -1,0 +1,47 @@
+@import url("https://fonts.googleapis.com/css?family=Raleway");
+
+html, body {
+    color: #e4e4e4;
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    color: #adb5bd; 
+  }
+  
+  
+input[type="text"], input[type="password"], textarea {
+    color: #e4e4e4; 
+
+  }
+  
+:root {
+    --glow-color: hsl(186 100% 69%);
+  }
+  
+  .glowing-btn {
+    display: inline-block;
+    color: var(--glow-color);
+    cursor: pointer;
+    padding: 1px 2px; 
+    border: 2px solid var(--glow-color);
+    border-radius: 4px;
+    background: none;
+    font-family: "Raleway", sans-serif;
+    font-weight: 900;
+    letter-spacing: 0.1em; 
+    text-transform: uppercase; 
+    box-shadow: 0 0 8px var(--glow-color);
+    transition: all 0.3s ease;
+  }
+  
+  .glowing-btn:hover {
+    box-shadow: 0 0 12px var(--glow-color);
+    color: #fff; 
+  }
+  
+  .glowing-btn:active {
+    box-shadow: 0 0 16px var(--glow-color), inset 0 0 8px var(--glow-color);
+    color: #fff; 
+  }
+  

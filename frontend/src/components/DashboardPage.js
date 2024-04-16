@@ -6,12 +6,11 @@ import { Badge } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import { useAuth } from '../context/AuthContext';
-import MyPasswordEntry from './MyPasswordEntries';
 import SharedWithMe from './ShareWithMe';
-import { makeApiRequest } from '../utils/api';  
 import MyPasswordEntries from './MyPasswordEntries';
-import './DashboardPage.css';
-import './PasswordEntryCard.css';
+import '../assets/LoginPage.css';
+import '../assets/PasswordEntryCard.css';
+import '../assets/DashboardPage.css';
 
 
 const DashboardPage = () => {
@@ -60,8 +59,7 @@ const DashboardPage = () => {
 };
 
 return (
-  <Container className="my-3">
-      <h2>Dashboard</h2>
+  <Container className="my-3 ">
       {pendingRequests.length > 0 && (
           <div>
               <Link to="/share-requests">
@@ -71,17 +69,19 @@ return (
               </Link>
           </div>
       )}
-      <Form className="d-flex justify-content-between"onSubmit={handleSearch}>
-          <Form.Control
+      <Form className="d-flex dark-theme-container search-form"onSubmit={handleSearch}>
+        <div class="search-container">
+          <Form.Control id="b1"
               type="text"
               placeholder="Search passwords"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="me-2 flex-grow-1"
           />
-          <Button type="submit" className="search-button">Search</Button>
+          <Button type="submit" className="glowing-btn" id='b5'>Search</Button>
+          </div>
       </Form>
-      <MyPasswordEntries showActions={['show', 'copy']} />
+      <MyPasswordEntries showProfile={false} showActions={['show', 'copy']} />
       <SharedWithMe />
   </Container>
 );

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Button } from 'react-bootstrap';
-import './PasswordEntryCard.css';
+import '../assets/PasswordEntryCard.css';
 
 const PasswordEntryCard = ({
     entry,
@@ -27,7 +27,7 @@ const PasswordEntryCard = ({
         }
     };
 
-    const cardClassName = `mb-6 card-custom-border ${page === 'mypasswords' ? 'mypasswords-style' : ''}`;
+    const cardClassName = `mb-6 card-custom ${page === 'mypasswords' ? 'mypasswords-style' : ''}`;
 
 
     const imageUrl = `https://logo.clearbit.com/${extractDomain(entry.website)}`;
@@ -52,7 +52,7 @@ const PasswordEntryCard = ({
                     <Card.Text>
                         <strong>Password:</strong> {isVisible ? entry.password : '****'}
                     </Card.Text>
-                    {sharedBy && <Card.Text><strong>Shared by:</strong> {sharedBy}</Card.Text>}
+                    {sharedBy && <Card.Text className="shared-by"><strong>Shared by:</strong> {sharedBy}</Card.Text>}
                     {showActions.includes('show') && (
                     <div className="buttons">
                         <button className="d-1" onClick={() => onToggleVisibility(entry._id)}>
@@ -65,7 +65,7 @@ const PasswordEntryCard = ({
                         )}
                     </div>
                 )}
-                <div className="row mt-2">
+                <div className="row mt-2 dark-theme-buttons">
                     {showActions.includes('update') && (
                         <div className="col">
                         <Button onClick={() => onUpdate(entry)} variant="primary" className="w-100">

@@ -5,6 +5,9 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert'; 
 import { useAuth } from '../context/AuthContext'; 
+import '../assets/LoginPage.css';
+import '../assets/Register.css';
+
 
 
 const RegisterPage = () => {
@@ -51,7 +54,7 @@ const RegisterPage = () => {
   };
 
   return (
-    <Container className="mt-5">
+    <Container className="dark-theme-container mt-5">
       <h2>Register</h2>
       {message.content && (
         <Alert variant={message.type}>{message.content}</Alert>
@@ -82,7 +85,7 @@ const RegisterPage = () => {
           />
         </Form.Group>
 
-        {/* Password form group */}
+
         <Form.Group controlId="formBasicPassword">
           <Form.Label>Password</Form.Label>
           <Form.Control
@@ -95,7 +98,7 @@ const RegisterPage = () => {
           />
         </Form.Group>
 
-        <Button variant="primary" type="submit">
+        <Button className='glowing-btn' type="submit">
           Register
         </Button>
       </Form>

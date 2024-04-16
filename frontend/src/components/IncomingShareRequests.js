@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { useAuth } from '../context/AuthContext'; 
 import RequestsFromMe from './RequestsFromMe';
+import '../assets/IncomingShareRequest.css'
 
 const ShareRequests = () => {
   const [requests, setRequests] = useState([]);
@@ -74,19 +75,23 @@ const ShareRequests = () => {
 
   return (
     <div>
-      <h1>Share Requests</h1>
-      <ul>
-        {requests.map((request) => (
-          <li key={request._id}>
-            From: {request.fromUser.username} ({request.fromUser.email})<br />
-            To: {request.toUser.username} ({request.toUser.email})<br />
-            Status: <span style={{ color: request.status === 'accepted' ? 'green' : request.status === 'rejected' ? 'red' : 'grey' }}>{request.status}</span><br />
-            Entry: {request.passwordEntry.website}<br />
-            <Button variant="success" onClick={() => handleAcceptRequest(request._id)} disabled={request.status !== 'pending'}>Accept</Button>
-            <Button variant="danger" onClick={() => handleRejectRequest(request._id)} disabled={request.status !== 'pending'}>Reject</Button>
-          </li>
-        ))}
-      </ul>
+      <h2>Share Requests:</h2>
+      <ul className="request-list">
+            {requests.map((request) => (
+                <li key={request._id} className="request-item">
+                    <div className="request-detail">From: {request.fromUser.username} ({request.fromUser.email})</div>
+                    <div className="request-detail">To: {request.toUser.username} ({request.toUser.email})</div>
+                    <div className="request-detail">
+                        Status: <span style={{ color: request.status === 'accepted' ? 'green' : request.status === 'rejected' ? 'red' : 'grey' }}>{request.status}</span>
+                    </div>
+                    <div className="request-detail">Entry: {request.passwordEntry.website}</div>
+                    <div className="request-buttons">
+                        <Button className="button button-success" onClick={() => handleAcceptRequest(request._id)} disabled={request.status !== 'pending'}>Accept</Button>
+                        <Button className="button button-danger" onClick={() => handleRejectRequest(request._id)} disabled={request.status !== 'pending'}>Reject</Button>
+                    </div>
+                </li>
+            ))}
+        </ul>
       <RequestsFromMe />
     </div>
     

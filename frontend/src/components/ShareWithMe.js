@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import PasswordEntryCard from './PasswordEntryCard'; 
+import '../assets/PasswordEntryCard.css';
 import {handleCopyToClipboard } from '../utils/passwordUtilities';
-import './PasswordEntryCard.css';
 import { Container, Row, Col } from 'react-bootstrap';
+import PasswordEntryCard from './PasswordEntryCard';
 
 
 const SharedWithMe = () => {

@@ -1,0 +1,15 @@
+.profile-container{
+    margin-top: 100px;
+    align-items: center; 
+    margin-bottom: 300px;
+}
+
+.user-info {
+    margin-bottom: 16px; 
+}
+
+.buttons-container {
+    display: flex;
+    margin-top: 16px; 
+    gap: 30px
+}

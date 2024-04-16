@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, Table, Modal } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
 import { makeApiRequest } from '../utils/api';
+import '../assets/RequestFromMe.css';
 
 const RequestsFromMe = () => {
     const { token } = useAuth();
@@ -67,7 +68,7 @@ const RequestsFromMe = () => {
     return (
         <div>
             <h3>My Sent Share Requests</h3>
-            <Table striped bordered hover>
+            <Table striped bordered hover className="table">
                 <thead>
                     <tr>
                         <th>To User</th>
@@ -83,7 +84,7 @@ const RequestsFromMe = () => {
                             <td>{request.passwordEntry.website}</td>
                             <td>{request.status}</td>
                             <td>
-                                <Button variant="warning" size='sm' onClick={() => openModal(request)}>Edit</Button>
+                                <Button className="button" size='sm' onClick={() => openModal(request)}>Edit</Button>
                             </td>
                         </tr>
                     ))}

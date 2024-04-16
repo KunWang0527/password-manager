@@ -1,0 +1,50 @@
+.requests-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px;
+}
+
+.request-item {
+    background-color: #2a2a2a; 
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.request-detail {
+    margin-bottom: 8px; 
+}
+
+.request-buttons {
+    display: flex;
+    gap: 10px; 
+}
+
+.button {
+    padding: 10px 20px;
+    font-size: 16px; 
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button-success {
+    background-color: #4CAF50; 
+}
+
+.button-success:hover {
+    background-color: #45a049; 
+}
+
+.button-danger {
+    background-color: #f44336; 
+}
+
+.button-danger:hover {
+    background-color: #da190b; 
+}
+
+.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

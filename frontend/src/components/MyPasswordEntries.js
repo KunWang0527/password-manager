@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Row, Col } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate} from 'react-router-dom';
 import UpdatePasswordModal from './UpdatePasswordModal';
 import SharePasswordModal from './SharePasswordModal';
-import { togglePasswordVisibility, handleCopyToClipboard } from '../utils/passwordUtilities';
+import {handleCopyToClipboard } from '../utils/passwordUtilities';
 import { makeApiRequest } from '../utils/api';
 import PasswordEntryCard from './PasswordEntryCard';
-import './PasswordEntryCard.css';
-import './MyPasswordEntries.css';
+import '../assets/PasswordEntryCard.css';
+import '../assets/MyPasswordEntries.css';
+import Profile from './Profile';
+import '../assets/profile.css';
 
 
-const MyPasswordEntries = ({ onOpenModal, showActions }) => {
+const MyPasswordEntries = ({ showProfile , showActions }) => {
     const { token } = useAuth();
     const [userPasswords, setUserPasswords] = useState([]);
     const navigate = useNavigate();
-    const location = useLocation();
     const [visiblePasswords, setVisiblePasswords] = useState({});
     const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
@@ -29,10 +30,6 @@ const MyPasswordEntries = ({ onOpenModal, showActions }) => {
                 .catch(error => console.error("Failed to fetch user passwords:", error));
         }
     }, [token]);
-
-    const actionButtons = location.pathname === '/mypasswords'
-        ? ['show', 'copy', 'update', 'delete', 'share']
-        : ['show', 'copy'];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -98,7 +95,6 @@ const MyPasswordEntries = ({ onOpenModal, showActions }) => {
   return (
     <div className="mt-4">
         <h2>My Passwords:</h2>
-        <Button onClick={() => navigate('/create')} variant="info" className="mb-3 button-71" >Create New Entry</Button>
         <Row xs={1} md={4} className="g-4">
             {userPasswords.map((password) => (
                 <Col key={password._id}>
@@ -116,6 +112,7 @@ const MyPasswordEntries = ({ onOpenModal, showActions }) => {
                 </Col>
             ))}
         </Row>
+        <Button onClick={() => navigate('/create')} variant="info" className="mb-3 glowing-btn" id='b6' >Create New Entry</Button>
       <UpdatePasswordModal
     show={showUpdateModal}
     onHide={() => setShowUpdateModal(false)}
@@ -131,8 +128,13 @@ const MyPasswordEntries = ({ onOpenModal, showActions }) => {
         setEmail={setShareWithEmail}
         handleShare={handleActualShare} 
     />
+     {showProfile && <Profile />}
   </div>
 );
+};
+
+MyPasswordEntries.defaultProps = {
+  showProfile: true,
 };
 
 export default MyPasswordEntries;

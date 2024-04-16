@@ -1,11 +1,12 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Alert from 'react-bootstrap/Alert';
 import { Link } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/Button';
+import '../assets/HomePage.css'; 
+
+
 
 const HomePage = () => {
   const location = useLocation();
@@ -16,24 +17,23 @@ const HomePage = () => {
       setAlertMessage(location.state.message);
     }
   }, [location]);
+  
   return (
-    <Container>
-      {alertMessage && <Alert variant="warning">{alertMessage}</Alert>}
-      <Row className="mt-5">
-        <Col md={{ span: 6, offset: 3 }} className="text-center">
-          <h1>Welcome to Password Manager</h1>
-          <p>
-            Password Manager makes it easy and secure for you to store and manage all your passwords in one place. Access your passwords anytime, anywhere, with complete security.
+    <div className="home-container"> 
+      <Container>
+        {alertMessage && <Alert variant="warning">{alertMessage}</Alert>}
+        <div className="hero-section"> 
+          <h1 className="hero-title"><strong>Manage Your Passwords with Ease</strong></h1>
+          <p className="hero-description">
+            Store, manage, and share your passwords securely in one centralized place.
           </p>
-          <p>
-            What sets us apart? With Password Manager, you can <strong>share passwords with your friends and family safely</strong>. Our secure sharing feature ensures that you can collaborate with others without compromising on security.
-          </p>
-          <p>
-            Ready to take control of your passwords and share them safely? Start by <Link to="/login">logging in</Link> or <Link to="/register">registering</Link> for a new account today.
-          </p>
-        </Col>
-      </Row>
-    </Container>
+          <div className='button-group'> 
+            <Button className="glowing-btn" as={Link} to="/login">Log In</Button>
+            <Button className="glowing-btn" id="b2"as={Link} to="/register">Register</Button>
+          </div>
+        </div>
+      </Container>
+    </div>
   );
 };
 

@@ -1,0 +1,113 @@
+.home-container {
+    font-family: 'Open Sans', sans-serif; 
+    color: #333; 
+  }
+  
+  .hero-section {
+    text-align: center;
+    padding: 4rem 0; 
+    background-size: cover;
+  }
+  
+  .hero-title {
+    font-size: 2.5rem; 
+    margin-bottom: 1rem;
+  }
+  
+  .hero-description {
+    font-size: 1.2rem; 
+    margin-bottom: 2rem;
+  }
+
+  
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2rem; 
+    }
+  
+  }
+
+  @keyframes lights {
+    0% {
+      color: hsl(230, 40%, 80%);
+      text-shadow:
+        0 0 1em hsla(320, 100%, 50%, 0.2),
+        0 0 0.125em hsla(320, 100%, 60%, 0.3),
+        -1em -0.125em 0.5em hsla(40, 100%, 60%, 0),
+        1em 0.125em 0.5em hsla(200, 100%, 60%, 0);
+    }
+    
+    30% { 
+      color: hsl(230, 80%, 90%);
+      text-shadow:
+        0 0 1em hsla(320, 100%, 50%, 0.5),
+        0 0 0.125em hsla(320, 100%, 60%, 0.5),
+        -0.5em -0.125em 0.25em hsla(40, 100%, 60%, 0.2),
+        0.5em 0.125em 0.25em hsla(200, 100%, 60%, 0.4);
+    }
+    
+    40% { 
+      color: hsl(230, 100%, 95%);
+      text-shadow:
+        0 0 1em hsla(320, 100%, 50%, 0.5),
+        0 0 0.125em hsla(320, 100%, 90%, 0.5),
+        -0.25em -0.125em 0.125em hsla(40, 100%, 60%, 0.2),
+        0.25em 0.125em 0.125em hsla(200, 100%, 60%, 0.4);
+    }
+    
+    70% {
+      color: hsl(230, 80%, 90%);
+      text-shadow:
+        0 0 1em hsla(320, 100%, 50%, 0.5),
+        0 0 0.125em hsla(320, 100%, 60%, 0.5),
+        0.5em -0.125em 0.25em hsla(40, 100%, 60%, 0.2),
+        -0.5em 0.125em 0.25em hsla(200, 100%, 60%, 0.4);
+    }
+    
+    100% {
+      color: hsl(230, 40%, 80%);
+      text-shadow:
+        0 0 1em hsla(320, 100%, 50%, 0.2),
+        0 0 0.125em hsla(320, 100%, 60%, 0.3),
+        1em -0.125em 0.5em hsla(40, 100%, 60%, 0),
+        -1em 0.125em 0.5em hsla(200, 100%, 60%, 0);
+    }
+    
+  }
+
+.home-container{ 
+    padding: 20px;
+    max-width: 800px;
+    margin: auto;
+    margin-top: 10rem;
+    font-size: 3.5rem;
+    font-weight: 300;
+    animation: lights 5s 750ms linear infinite;
+    box-sizing: border-box;
+  }
+
+
+.btn-custom-secondary {
+    margin-right: 4rem;
+    background-color: transparent; 
+  }
+  
+.hero-section{
+    transform: scale(1.2);
+  }
+
+.button-group {
+    display: flex;       
+    font-size: 1.0rem;
+    justify-content: center;
+    align-items: center; 
+    gap: 20px;
+  }
+
+
+#b2 {
+  margin-right: auto;
+  margin-left: 0px;
+}
+
+    

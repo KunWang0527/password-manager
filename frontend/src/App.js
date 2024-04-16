@@ -1,4 +1,5 @@
-import './assets/bootstrap.min.css';
+import './assets/1.css';
+import './assets/root.css';
 import React from 'react';
 import { AuthProvider } from './context/AuthContext';
 import Header from './components/Header';
@@ -15,9 +16,6 @@ import MyPasswordEntries from './components/MyPasswordEntries';
 import SearchPage from './components/SearchPage';
 import Profile from './components/Profile';
 import RequestsFromMe from './components/RequestsFromMe';
-
-
-
 
 
 function App() {

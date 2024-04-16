@@ -1,0 +1,41 @@
+
+.dark-theme-container {
+    background-color: #333;
+    color: #fff; 
+    border-radius: 8px;
+    padding: 2rem;
+    max-width: 400px; 
+    margin: 2rem auto;
+  }
+  
+  .dark-theme-container h2 {
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  
+  .dark-theme-container .form-label {
+    color: #adb5bd; 
+  }
+  
+  .dark-theme-container .form-control {
+    background-color: #222; 
+    border: 1px solid #444; 
+    color: #fff; 
+  }
+  
+  .dark-theme-container .form-control:focus {
+    background-color: #222;
+    border-color: #555; 
+    box-shadow: none; 
+  }
+  
+  .glowing-btn
+  {
+    display:block;
+    margin-left:auto;
+    margin-right: 0px;
+    margin-top: 25px;
+    border: none;
+  }
+  
+  

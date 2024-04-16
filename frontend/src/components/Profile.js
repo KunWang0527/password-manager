@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Modal, Form } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
+import '../assets/profile.css';
 
 const Profile = () => {
     const { user, token, setUser} = useAuth();  
@@ -86,11 +87,11 @@ const Profile = () => {
 
     return (
         <div className="profile-container">
-            <h1>User Profile</h1>
-            <p><strong>Username:</strong> {user.username}</p>
-            <p><strong>Email:</strong> {user.email}</p>
-            <p><strong>Account Created:</strong> {new Date(user.createdAt).toLocaleDateString()}</p>
-
+            <h2>User Info:</h2>
+            <p className='user-info'><strong>Username:</strong> {user.username}</p>
+            <p className='user-info'><strong>Email:</strong> {user.email}</p>
+            <p className='user-info'><strong>Account Created:</strong> {new Date(user.createdAt).toLocaleDateString()}</p>
+            <div className='buttons-container'>
             <Button variant="outline-warning" onClick={() => setShowUsernameModal(true)}>
                 Change Username
             </Button>
@@ -98,6 +99,7 @@ const Profile = () => {
             <Button variant="outline-danger" onClick={() => setShowPasswordModal(true)}>
                 Change Password
             </Button>
+            </div>
             <Modal show={showUsernameModal} onHide={() => setShowUsernameModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Update Username</Modal.Title>

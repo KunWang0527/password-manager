@@ -5,6 +5,7 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import { useAuth } from '../context/AuthContext';
+import '../assets/LoginPage.css';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -61,7 +62,7 @@ const LoginPage = () => {
   };
 
   return (
-    <Container className="mt-5">
+    <Container className="dark-theme-container mt-5">
       <h2>Login</h2>
       {message.content && (
         <Alert variant={message.type}>{message.content}</Alert>
@@ -91,7 +92,7 @@ const LoginPage = () => {
           />
         </Form.Group>
 
-        <Button variant="primary" type="submit">
+        <Button className='glowing-btn' type="submit">
           Login
         </Button>
       </Form>
